@@ -21,6 +21,9 @@ namespace AgaveGames.Data
         
         #region RETURN METHODS
         
+        /// <summary>
+        /// Returns the tile prefab for a given cell in the grid
+        /// </summary>
         public int GetIndex(int row, int col)
         {
             return  ((row * (m_GridSize.y)) + col);
@@ -29,6 +32,9 @@ namespace AgaveGames.Data
         #endregion
     }
     
+    /// <summary>
+    /// Tile property
+    /// </summary>
     [System.Serializable]
     public class TileProperty
     {
@@ -36,6 +42,9 @@ namespace AgaveGames.Data
         [Range(0f, 1f)] public float m_SpawnChance;
     }
     
+    /// <summary>
+    /// Tile obstacle property
+    /// </summary>
     [System.Serializable]
     public class TileObstacleProperty
     {
