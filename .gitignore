@@ -4,3 +4,5 @@
 /AgaveGamesCaseStudy/Logs
 /AgaveGamesCaseStudy/Temp
 /AgaveGamesCaseStudy/UserSettings
+/AgaveGamesCaseStudy/obj
+*.csproj
