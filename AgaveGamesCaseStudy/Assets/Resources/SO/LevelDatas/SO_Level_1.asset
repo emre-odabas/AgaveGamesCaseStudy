@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_GridSize: {x: 8, y: 8}
   m_MaxMovement: 15
-  m_TargetGoal: 999999
+  m_TargetGoal: 12000
   m_TilePropertyList:
   - m_TilePrefab: {fileID: 7813735370340122940, guid: dd01c30dea23cd340a3dc792f6b9f6b6, type: 3}
     m_SpawnChance: 0.2
