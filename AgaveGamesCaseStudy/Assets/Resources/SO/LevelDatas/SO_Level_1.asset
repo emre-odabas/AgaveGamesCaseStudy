@@ -16,28 +16,20 @@ MonoBehaviour:
   m_MaxMovement: 15
   m_TargetGoal: 999999
   m_TilePropertyList:
-  - m_TilePrefab: {fileID: 7813735370340122940, guid: dd01c30dea23cd340a3dc792f6b9f6b6,
-      type: 3}
+  - m_TilePrefab: {fileID: 7813735370340122940, guid: dd01c30dea23cd340a3dc792f6b9f6b6, type: 3}
     m_SpawnChance: 0.2
-  - m_TilePrefab: {fileID: 7614408510764623704, guid: 1167568550ac0ef47932da8fce927b70,
-      type: 3}
+  - m_TilePrefab: {fileID: 7614408510764623704, guid: 1167568550ac0ef47932da8fce927b70, type: 3}
     m_SpawnChance: 0.2
-  - m_TilePrefab: {fileID: 5494958300691265603, guid: fb7f527a301ce2e46bd0eb033d39f42b,
-      type: 3}
+  - m_TilePrefab: {fileID: 5494958300691265603, guid: fb7f527a301ce2e46bd0eb033d39f42b, type: 3}
     m_SpawnChance: 0.2
-  - m_TilePrefab: {fileID: 2440756859915141654, guid: 1be6da778d22d2542a1cba32e1759e58,
-      type: 3}
+  - m_TilePrefab: {fileID: 2440756859915141654, guid: 1be6da778d22d2542a1cba32e1759e58, type: 3}
     m_SpawnChance: 0.2
   m_TileObstaclePropertyList:
-  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709,
-      type: 3}
+  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709, type: 3}
     m_Coordinate: {x: 0, y: 0}
-  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709,
-      type: 3}
+  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709, type: 3}
     m_Coordinate: {x: 3, y: 3}
-  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709,
-      type: 3}
+  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709, type: 3}
     m_Coordinate: {x: 5, y: 7}
-  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709,
-      type: 3}
+  - m_TileObstaclePrefab: {fileID: 2408827205840281453, guid: 9592187c1351c094c8fdf5e549b85709, type: 3}
     m_Coordinate: {x: 6, y: 2}

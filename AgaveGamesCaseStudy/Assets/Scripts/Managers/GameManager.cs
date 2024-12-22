@@ -39,7 +39,7 @@ namespace AgaveGames.Managers
 
         //Privates
         private int _score;
-        private BoardItemProperty[,] _board;
+        private BoardItemProperty[,] _boardItemList;
         private bool _canAdd = false;
         private LinkedList<Tile> _order = new LinkedList<Tile>();
         private int _remainingMove;
@@ -55,7 +55,7 @@ namespace AgaveGames.Managers
 
         private void Awake()
         {
-            _board = new BoardItemProperty[m_LevelData.m_GridSize.x, m_LevelData.m_GridSize.y];
+            _boardItemList = new BoardItemProperty[m_LevelData.m_GridSize.x, m_LevelData.m_GridSize.y];
             _remainingMove = m_LevelData.m_MaxMovement;
             CreateBoard();
             OnInit?.Invoke();
@@ -78,9 +78,6 @@ namespace AgaveGames.Managers
         /// <summary>
         /// Determines if a given cell in the grid is an obstacle.
         /// </summary>
-        /// <param name="row">The row index of the cell.</param>
-        /// <param name="col">The column index of the cell.</param>
-        /// <returns>True if the cell is an obstacle; otherwise, false.</returns>
         private bool IsObstacle(int row, int col)
         {
             return m_LevelData.m_TileObstaclePropertyList.Any(c=>c.m_Coordinate.x == row && c.m_Coordinate.y == col);
@@ -89,10 +86,7 @@ namespace AgaveGames.Managers
         /// <summary>
         /// Returns the playable tile prefab for a given cell in the grid.
         /// </summary>
-        /// <param name="row">The row index of the cell.</param>
-        /// <param name="col">The column index of the cell.</param>
-        /// <returns>The playable tile prefab for the given cell.</returns>
-        private Tile GetPlayableTilePrefab(int row, int col)
+        private Tile GetRandomPlayableTilePrefab()
         {
             //Random playable tile
             float chance = 0;
@@ -117,15 +111,54 @@ namespace AgaveGames.Managers
         /// <summary>
         /// Returns the obstacle tile prefab for a given cell in the grid.
         /// </summary>
-        /// <param name="row">The row index of the cell.</param>
-        /// <param name="col">The column index of the cell.</param>
-        /// <returns>The obstacle tile prefab for the given cell.</returns>
         private Tile GetObstacleTilePrefab(int row, int col)
         {
             TileObstacleProperty obstacleProperty = m_LevelData.m_TileObstaclePropertyList.FirstOrDefault(c=>c.m_Coordinate.x == row && c.m_Coordinate.y == col);
             if (obstacleProperty == null) return null;
             
             return obstacleProperty.m_TileObstaclePrefab;
+        }
+        
+        /// <summary>
+        /// Checks if there are matches on the board.
+        /// </summary>
+        private bool IsMatchAt(int row, int col)
+        {
+            Tile currentTile = _boardItemList[row, col].m_Tile;
+
+            if (col >= 2 &&
+                _boardItemList[row, col - 1].m_Tile == currentTile &&
+                _boardItemList[row, col - 2].m_Tile == currentTile)
+            {
+                return true;
+            }
+
+            if (row >= 2 &&
+                _boardItemList[row - 1, col].m_Tile == currentTile &&
+                _boardItemList[row - 2, col].m_Tile == currentTile)
+            {
+                return true;
+            }
+
+            return false;
+        }
+        
+        /// <summary>
+        /// Checks if there are matches on the board.
+        /// </summary>
+        private bool HasMatchesOnBoard()
+        {
+            for (int row = 0; row < m_LevelData.m_GridSize.x; row++)
+            {
+                for (int col = 0; col < m_LevelData.m_GridSize.y; col++)
+                {
+                    if (IsMatchAt(row, col))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
         #endregion
@@ -169,19 +202,21 @@ namespace AgaveGames.Managers
         /// </summary>
         public void Replay()
         {
+            Debug.Log("Replay!");
+            
             //clear board
             m_TileBGPrefab.RecycleAll();
             for (int row = 0; row < m_LevelData.m_GridSize.x; row++)
             {
                 for (int col = 0; col < m_LevelData.m_GridSize.y; col++)
                 {
-                    StartCoroutine(_board[row, col].m_Tile.Break());
+                    StartCoroutine(_boardItemList[row, col].m_Tile.Break());
                 }
             }
 
             _score = 0;
             _remainingMove = m_LevelData.m_MaxMovement;
-            _board = new BoardItemProperty[m_LevelData.m_GridSize.x, m_LevelData.m_GridSize.y];
+            _boardItemList = new BoardItemProperty[m_LevelData.m_GridSize.x, m_LevelData.m_GridSize.y];
             CreateBoard();
             OnInit?.Invoke();
         }
@@ -209,19 +244,23 @@ namespace AgaveGames.Managers
             }
             _canAdd = true;
             IsFinish = false;
+            
+            //Check if there is a combination
+            if (HasMatchesOnBoard())
+            {
+                Replay(); // If there is a combination, shuffle the board again
+            }
         }
         
         /// <summary>
         /// Spawns a playable tile at the given position in the grid.
         /// </summary>
-        /// <param name="row">The row index of the cell.</param>
-        /// <param name="col">The column index of the cell.</param>
         private void SpawnPlayableTile(int row, int col)
         {
             Vector2 goalPos = new Vector2(col + (m_BoardSpace * col), row + (m_BoardSpace * row));
             Vector2 startPos = new Vector2(col, m_StartTilePosition);
 
-            Tile tilePrefab = GetPlayableTilePrefab(row, col);
+            Tile tilePrefab = GetRandomPlayableTilePrefab();
             if (tilePrefab == null)
             {
                 Debug.LogError("[GameManager] Tile prefab not found");
@@ -229,15 +268,13 @@ namespace AgaveGames.Managers
             }
             
             Tile tile = ObjectPooler.Spawn(tilePrefab, m_TilesParent, startPos);
-            _board[row, col] = new BoardItemProperty(GridInfo.Playable, tile, goalPos);
+            _boardItemList[row, col] = new BoardItemProperty(GridInfo.Playable, tile, goalPos);
             tile.Init(row, col, startPos, goalPos);
         }
         
         /// <summary>
         /// Spawns an obstacle tile at the given position in the grid.
         /// </summary>
-        /// <param name="row">The row index of the cell.</param>
-        /// <param name="col">The column index of the cell.</param>
         private void SpawnObstacleTile(int row, int col)
         {
             Vector2 goalPos = new Vector2(col + (m_BoardSpace * col), row + (m_BoardSpace * row));
@@ -251,14 +288,13 @@ namespace AgaveGames.Managers
             }
             
             Tile tile = ObjectPooler.Spawn(tilePrefab, m_TilesParent, startPos);
-            _board[row, col] = new BoardItemProperty(GridInfo.Obstacle, tile, goalPos);
+            _boardItemList[row, col] = new BoardItemProperty(GridInfo.Obstacle, tile, goalPos);
             tile.Init(row, col, startPos, goalPos);
         }
         
         /// <summary>
         /// Adds the given score to the current score.
         /// </summary>
-        /// <param name="valueToAdd">The score to add.</param>
         public void AddScore(int valueToAdd)
         {
             _score += valueToAdd;
@@ -272,7 +308,6 @@ namespace AgaveGames.Managers
         /// <summary>
         /// Adds the given tile to the stack.
         /// </summary>
-        /// <param name="tile">The tile to add.</param>
         public void AddToStack(Tile tile)
         {
             if (!_canAdd)
@@ -309,7 +344,8 @@ namespace AgaveGames.Managers
                 }
             }
         }
-
+        
+        /// <summary>
         /// Finishes the game.
         /// </summary>
         private void Finish(bool isSuccess)
@@ -336,7 +372,7 @@ namespace AgaveGames.Managers
                 Tile tile = _order.First.Value;
                 _order.RemoveFirst();
                 tile.OnMerge(i);
-                _board[tile.Coordinate.x, tile.Coordinate.y].m_Tile = null;
+                _boardItemList[tile.Coordinate.x, tile.Coordinate.y].m_Tile = null;
                 yield return new WaitForSeconds(0.1f);
             }
             _canAdd = true;
@@ -353,10 +389,10 @@ namespace AgaveGames.Managers
             {
                 for (int col = 0; col < m_LevelData.m_GridSize.y; col++)
                 {
-                    if (_board[row, col] == null)// || board[row, col].info != GridInfo.Playable)
+                    if (_boardItemList[row, col] == null)// || board[row, col].info != GridInfo.Playable)
                         continue;
                     
-                    if (_board[row, col].m_Tile == null)
+                    if (_boardItemList[row, col].m_Tile == null)
                     {
                         int current = row;
                         do
@@ -364,12 +400,12 @@ namespace AgaveGames.Managers
                             int r = current + 1;
                             if (r < m_LevelData.m_GridSize.x)
                             {
-                                if (_board[r, col].m_Tile != null)
+                                if (_boardItemList[r, col].m_Tile != null)
                                 {
-                                    _board[row, col].m_Tile = _board[r, col].m_Tile;
-                                    _board[row, col].m_Tile.SetRowCol(row, col);
-                                    _board[row, col].m_Tile.SlideDown(_board[row, col].m_Tile.transform.localPosition, _board[row, col].m_Coordinate);
-                                    _board[r, col].m_Tile = null;
+                                    _boardItemList[row, col].m_Tile = _boardItemList[r, col].m_Tile;
+                                    _boardItemList[row, col].m_Tile.SetRowCol(row, col);
+                                    _boardItemList[row, col].m_Tile.SlideDown(_boardItemList[row, col].m_Tile.transform.localPosition, _boardItemList[row, col].m_Coordinate);
+                                    _boardItemList[r, col].m_Tile = null;
                                     break;
                                 }
                                 else
@@ -379,7 +415,7 @@ namespace AgaveGames.Managers
                             }
                             else
                                 break;
-                        } while (_board[row, col].m_Tile == null);
+                        } while (_boardItemList[row, col].m_Tile == null);
                     }
 
                 }
@@ -391,7 +427,7 @@ namespace AgaveGames.Managers
             {
                 for (int col = 0; col < m_LevelData.m_GridSize.y; col++)
                 {
-                    if (_board[row, col].m_Tile == null)
+                    if (_boardItemList[row, col].m_Tile == null)
                     {
                         SpawnPlayableTile(row, col);
                     }
@@ -399,6 +435,12 @@ namespace AgaveGames.Managers
             }
 
             yield return null;
+            
+            //Check if there is a combination
+            if (HasMatchesOnBoard())
+            {
+                Replay(); // If there is a combination, shuffle the board again
+            }
         }
 
         /// <summary>
