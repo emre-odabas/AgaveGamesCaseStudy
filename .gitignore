@@ -1,0 +1,6 @@
+
+*.sln
+/AgaveGamesCaseStudy/Library
+/AgaveGamesCaseStudy/Logs
+/AgaveGamesCaseStudy/Temp
+/AgaveGamesCaseStudy/UserSettings
